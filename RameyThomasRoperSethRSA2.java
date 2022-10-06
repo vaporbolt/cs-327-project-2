@@ -1,26 +1,28 @@
+import java.math.BigInteger;
+
 /**
  * @author Xunhua Wang. All rights reserved. Modified by Thomas Ramey and Seth Roper
  * @date 02/16/2012; revised on 09/27/2018; further refined on 09/20/2019 and 09/29/2020
  * 
  */
 
-public class RameyThomasRoperSethRSA
+public class RameyThomasRoperSethRSA2
 {
-	public int gcd (int inE, int inZ) {
-		while (inZ != 0)
+	public BigInteger gcd (BigInteger inE, BigInteger inZ) {
+		while (inZ.compareTo(BigInteger.ZERO) != 0)
 		{
-			int temp = inZ;
-			inZ = inE % inZ;
+			BigInteger temp = inZ;
+			inZ = inE.mod(inZ);
 			inE = temp;
 		}
 		return inE;
 	}
 
 	public void testGcd () {
-		int result1 = gcd (29, 288);
-		int result2 = gcd (30, 288);
-		System.out.println ("GCD (29, 288) = 0x" + Integer.toString(result1, 16));
-		System.out.println ("GCD (30, 288) = 0x" + Integer.toString(result2, 16));
+		BigInteger result1 = gcd (BigInteger.valueOf(29), BigInteger.valueOf(288));
+		BigInteger result2 = gcd (BigInteger.valueOf(30), BigInteger.valueOf(288));
+		System.out.println ("GCD (29, 288) = 0x" + result1.toString(16));
+		System.out.println ("GCD (30, 288) = 0x" + result2.toString(16));
 	}
 
 	//
@@ -30,52 +32,56 @@ public class RameyThomasRoperSethRSA
 	//	-1: no inverse
 	//	inverse of inE mod inZ
 	//
-	public int xgcd (int inE, int inZ) {
+	public BigInteger xgcd (BigInteger inE, BigInteger inZ) {
 		// TO BE FINISHED
 		// Must implement the extended Euclidean algorithm
 		// NO brute-forcing; violation will lead to zero points
 		// NO recursion; violation will lead to zero points
 
 		// covered just in case even tho INZ SHOULD NEVER BE 1
-		if (inZ == 1) {
-			return 0;
+		if (inZ.compareTo(BigInteger.ONE) == 0) {
+			return BigInteger.ZERO;
 		}
 
-		int reserve = inZ;
-		int t = 0, s = 1;
+		BigInteger reserve = inZ;
+		BigInteger t = BigInteger.ZERO, s = BigInteger.ONE;
 
 		// default d is inE
-		while (inE > 1) {
+		// while (inE > 1) {
+		while (inE.compareTo(BigInteger.ONE) == -1) { //inE > 1?
 
-			int q = inE / inZ;
-			int d = inZ;
-			inZ = inE % inZ;
+			BigInteger q = inE.divide(inZ);
+			BigInteger d = inZ;
+			inZ = inE.mod(inZ);
 			inE = d;
 			d = t;
-			t = s - q * t;
+			t = s .subtract(q.multiply(t)) ;
 			s = d;
 		}
 
 		// negative mod
-		if (s < 0)
-			s+= reserve;
+		// if (s < 0)
+		if (s.compareTo(BigInteger.ZERO) == 1) // s < 0??
+			//s+= reserve;
+			s = s.add(reserve);
 
 		return s;
 	}
 
 	public void testXgcd () {
-		int result1 = xgcd (29, 288);
-		int result2 = xgcd (149, 288);
+		BigInteger result1 = xgcd (BigInteger.valueOf(29), BigInteger.valueOf(288));
+		BigInteger result2 = xgcd (BigInteger.valueOf(149), BigInteger.valueOf(288));
 
-		System.out.println ("29^-1 mod 288 = 0x" + Integer.toString(result1, 16));
-		System.out.println ("149^-1 mod 288 = 0x" + Integer.toString(result2, 16));
+		System.out.println ("29^-1 mod 288 = 0x" + result1.toString(6));
+		System.out.println ("149^-1 mod 288 = 0x" + result2.toString(6));
 	}
 
-	public int[] keygen (int inP, int inQ, int inE) {
-		int[] keys = new int[3];
+	public BigInteger[] keygen (BigInteger inP, BigInteger inQ, BigInteger inE) {
+		BigInteger[] keys = new BigInteger[3];
 		keys[0] = inE;
-		keys[1] = inP * inQ;
-		int z = (inP - 1) * (inQ - 1);
+		keys[1] = inP.multiply(inQ);
+		// int z = (inP - 1) * (inQ - 1);
+		BigInteger z = (inP.subtract(BigInteger.ONE)) .multiply( (inQ.subtract(BigInteger.ONE)));
 		keys[2]  = xgcd(inE, z);
 		return keys;
 		
@@ -85,11 +91,12 @@ public class RameyThomasRoperSethRSA
 	// The following method will return an integer array, with [e, N, d] in this order
 	//
 	public void testKeygen () {
-		int[] keypair = keygen (17, 19, 29);
+		// BigInteger[] keypair = keygen (17, 19, 29);
+		BigInteger[] keypair = keygen (BigInteger.valueOf(17), BigInteger.valueOf(19), BigInteger.valueOf(29));
 
-		System.out.println ("e = 0x" + Integer.toString(keypair[0], 16));
-		System.out.println ("N = 0x" + Integer.toString(keypair[1], 16));
-		System.out.println ("d = 0x" + Integer.toString(keypair[2], 16));
+		System.out.println ("e = 0x" + keypair[0].toString(16));
+		System.out.println ("N = 0x" + keypair[1].toString(16));
+		System.out.println ("d = 0x" + keypair[2].toString(16));
 	}
 
 	//
@@ -100,40 +107,36 @@ public class RameyThomasRoperSethRSA
 	// Note that even with primitive types, a^b may well exceed the range of Java int
 	// For example, 5^20 is too big to be held by a Java primitive integer
 	//
-	public int modExp (int a, int b, int n) {
-		int c = 1;
-		while (b > 0) 
-		{
-			int d = b % 2;
-			b = b / 2;
-			if (d == 1) 
-			{
-				long val = c * a;
-				c = (int) (val % n);
-			}
 
-			long val2 = a * a;
-			a = (int) (val2 % n);
-		}
-		return c;
-	}
+	//NEW IMPLEMENTATION
+	public int modExpTwo (int a, int b, int n) {
+		BigInteger aBigInt = BigInteger.valueOf ((long) a);
+		BigInteger bBigInt = BigInteger.valueOf ((long) b);
+		BigInteger nBigInt = BigInteger.valueOf ((long) n);
 
-	public int encrypt (int message, int inE, int inN) {
-		return modExp(message, inE, inN);
+		BigInteger resBigInt = aBigInt.modPow (bBigInt, nBigInt);
+		int res = resBigInt.intValue ();
+		return res;
+}
+
+
+
+	public int encrypt (int message, BigInteger inE, BigInteger inN) {
+		return modExpTwo(message, inE.intValue(), inN.intValue()); //Not too sure on this
 	}
 	
-	public int decrypt (int ciphertext, int inD, int inN) {
-		      return modExp(ciphertext, inD, inN);
+	public int decrypt (int ciphertext, BigInteger inD, BigInteger inN) {
+		      return modExpTwo(ciphertext, inD.intValue(), inN.intValue()); //Not too sure on this
 	}
 
 	public void testRSA () {
-		int[] keypair = keygen (17, 19, 29);
+		BigInteger[] keypair = keygen (BigInteger.valueOf(17), BigInteger.valueOf(19), BigInteger.valueOf(29));
 
 		int m1 = 4;
 		int c1 = encrypt (m1, keypair[0], keypair[1]);
-		System.out.println ("The encryption of (m1=0x" + Integer.toString(m1, 16) + ") is 0x" + Integer.toString(c1, 16));
+		System.out.println ("The encryption of (m1=0x" + Integer.toString(m1, 16) + ") is 0x" + Integer.toString(c1,16));
 		int cleartext1 = decrypt (c1, keypair[2], keypair[1]);
-		System.out.println ("The decryption of (c=0x" + Integer.toString(c1, 16) + ") is 0x" + Integer.toString(cleartext1, 16));
+		System.out.println ("The decryption of (c=0x" + Integer.toString(c1,16) + ") is 0x" + Integer.toString(cleartext1, 16));
 
 		int m2 = 5;
 		int c2 = encrypt (m2, keypair[0], keypair[1]);
@@ -143,9 +146,9 @@ public class RameyThomasRoperSethRSA
 	}
 
 	public static void main (String[] args) {
-		RameyThomasRoperSethRSA atrsa = new RameyThomasRoperSethRSA ();
+		RameyThomasRoperSethRSA2 atrsa = new RameyThomasRoperSethRSA2 ();
 
-		System.out.println ("********** Project 1 output begins ********** ");
+		System.out.println ("********** Project 2 output begins ********** ");
 
 		atrsa.testGcd ();
 		atrsa.testXgcd ();
