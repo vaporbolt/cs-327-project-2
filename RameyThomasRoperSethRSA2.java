@@ -109,12 +109,21 @@ public class RameyThomasRoperSethRSA2
 	//
 
 	//NEW IMPLEMENTATION
-	public int modExpTwo (int a, int b, int n) {
-		BigInteger aBigInt = BigInteger.valueOf ((long) a);
-		BigInteger bBigInt = BigInteger.valueOf ((long) b);
-		BigInteger nBigInt = BigInteger.valueOf ((long) n);
+	public int modExpTwo (BigInteger a, BigInteger b, BigInteger n) {
+		// BigInteger aBigInt = BigInteger.valueOf ((long) a);
+		// BigInteger bBigInt = BigInteger.valueOf ((long) b);
+		// BigInteger nBigInt = BigInteger.valueOf ((long) n);
 
-		BigInteger resBigInt = aBigInt.modPow (bBigInt, nBigInt);
+		// BigInteger resBigInt = aBigInt.modPow (bBigInt, nBigInt);
+		// int res = resBigInt.intValue ();
+		// return res;
+
+
+		// BigInteger aBigInt = BigInteger.valueOf ((long) a);
+		// BigInteger bBigInt = BigInteger.valueOf ((long) b);
+		// BigInteger nBigInt = BigInteger.valueOf ((long) n);
+
+		BigInteger resBigInt = a.modPow (b, n);
 		int res = resBigInt.intValue ();
 		return res;
 }
@@ -122,11 +131,13 @@ public class RameyThomasRoperSethRSA2
 
 
 	public int encrypt (int message, BigInteger inE, BigInteger inN) {
-		return modExpTwo(message, inE.intValue(), inN.intValue()); //Not too sure on this
+		return modExpTwo(BigInteger.valueOf(message), inE, inN); //Not too sure on this
 	}
 	
+
+	//Appears to be not working
 	public int decrypt (int ciphertext, BigInteger inD, BigInteger inN) {
-		      return modExpTwo(ciphertext, inD.intValue(), inN.intValue()); //Not too sure on this
+		      return modExpTwo(BigInteger.valueOf(ciphertext), inD, inN); //Not too sure on this
 	}
 
 	public void testRSA () {
