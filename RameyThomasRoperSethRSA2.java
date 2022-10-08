@@ -48,7 +48,7 @@ public class RameyThomasRoperSethRSA2
 
 		// default d is inE
 		// while (inE > 1) {
-		while (inE.compareTo(BigInteger.ONE) == -1) { //inE > 1?
+		while (inE.compareTo(BigInteger.ONE) == 1) { //inE > 1?
 
 			BigInteger q = inE.divide(inZ);
 			BigInteger d = inZ;
