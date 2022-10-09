@@ -109,7 +109,7 @@ public class RameyThomasRoperSethRSA2
 	//
 
 	//NEW IMPLEMENTATION
-	public int modExpTwo (BigInteger a, BigInteger b, BigInteger n) {
+	public BigInteger modExpTwo (BigInteger a, BigInteger b, BigInteger n) {
 		// BigInteger aBigInt = BigInteger.valueOf ((long) a);
 		// BigInteger bBigInt = BigInteger.valueOf ((long) b);
 		// BigInteger nBigInt = BigInteger.valueOf ((long) n);
@@ -124,36 +124,41 @@ public class RameyThomasRoperSethRSA2
 		// BigInteger nBigInt = BigInteger.valueOf ((long) n);
 
 		BigInteger resBigInt = a.modPow (b, n);
-		int res = resBigInt.intValue ();
-		return res;
+		//int res = resBigInt.intValue ();
+		return resBigInt;
 }
 
 
 
-	public int encrypt (int message, BigInteger inE, BigInteger inN) {
-		return modExpTwo(BigInteger.valueOf(message), inE, inN); //Not too sure on this
+	public BigInteger encrypt (BigInteger message, BigInteger inE, BigInteger inN) {
+		return modExpTwo(message, inE, inN); //Not too sure on this
 	}
 	
 
 	//Appears to be not working
-	public int decrypt (int ciphertext, BigInteger inD, BigInteger inN) {
-		      return modExpTwo(BigInteger.valueOf(ciphertext), inD, inN); //Not too sure on this
+	public BigInteger decrypt (BigInteger ciphertext, BigInteger inD, BigInteger inN) {
+		      return modExpTwo(ciphertext, inD, inN); //Not too sure on this
 	}
 
 	public void testRSA () {
 		BigInteger[] keypair = keygen (BigInteger.valueOf(17), BigInteger.valueOf(19), BigInteger.valueOf(29));
 
-		int m1 = 4;
-		int c1 = encrypt (m1, keypair[0], keypair[1]);
-		System.out.println ("The encryption of (m1=0x" + Integer.toString(m1, 16) + ") is 0x" + Integer.toString(c1,16));
-		int cleartext1 = decrypt (c1, keypair[2], keypair[1]);
-		System.out.println ("The decryption of (c=0x" + Integer.toString(c1,16) + ") is 0x" + Integer.toString(cleartext1, 16));
+		BigInteger m1 = BigInteger.valueOf(4);
+		BigInteger c1 = encrypt (m1, keypair[0], keypair[1]);
+		System.out.println ("The encryption of (m1=0x" + m1.toString(16) + ") is 0x" + c1.toString(16));
+		BigInteger cleartext1 = decrypt (c1, keypair[2], keypair[1]);
+		System.out.println ("The decryption of (c=0x" + c1.toString(16) + ") is 0x" + cleartext1.toString(16));
 
-		int m2 = 5;
-		int c2 = encrypt (m2, keypair[0], keypair[1]);
-		System.out.println ("The encryption of (m2=0x" + Integer.toString(m2, 16) + ") is 0x" + Integer.toString(c2, 16));
-		int cleartext2 = decrypt (c2, keypair[2], keypair[1]);
-		System.out.println ("The decryption of (c2=0x" + Integer.toString(c2, 16) + ") is 0x" + Integer.toString(cleartext2, 16));
+		BigInteger m2  = BigInteger.valueOf(5);
+		BigInteger c2 = encrypt (m2, keypair[0], keypair[1]);
+		System.out.println ("The encryption of (m2=0x" + m2.toString(16) + ") is 0x" + c2.toString(16));
+		BigInteger cleartext2 = decrypt (c2, keypair[2], keypair[1]);
+		System.out.println ("The decryption of (c2=0x" + c2.toString(16) + ") is 0x" + cleartext2.toString(16));
+	}
+
+	public int calculateBits(BigInteger n)
+	{
+		return n.bitLength();
 	}
 
 	public static void main (String[] args) {
@@ -165,5 +170,7 @@ public class RameyThomasRoperSethRSA2
 		atrsa.testXgcd ();
 		atrsa.testKeygen ();
 		atrsa.testRSA ();
+
+
 	}
 }
