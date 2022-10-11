@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Xunhua Wang. All rights reserved. Modified by Thomas Ramey and Seth Roper
@@ -92,14 +93,16 @@ public class RameyThomasRoperSethRSA2
 	//
 	public void testKeygen () {
 		// BigInteger[] keypair = keygen (17, 19, 29);
-		BigInteger p = new BigInteger("1821618209305989613382418596494169687036420364965421129134963360400595769749807455142959409976126078995241914312291577495610519423772929527936396420605114874419154232836561671414350490460228113441075618411363050789426976000007599763364547629060889440700125327266998298962685896768388148785353373454263657387997238076986729475125791062877101582571654678950990289476131477912683746651579092962395182436124323465567001310002387782529415237149777816727121008438674607");
-		BigInteger q = new BigInteger("1494404911228773568193595402920077013873360069861757539492815312919545935612505886795166517041806871759211066574482771633837336160456475335794352168201909436016357498289576035796443968197486506507562345028145200146534022861262664272791455051489900178563372605412245630620825231595435981956459729485957099861955463839266901249472054558057680898955786240266154203652122975190083730014332915313854176372296535807082155414293933903181782339003802051762625955299586519");
+		BigInteger p = new BigInteger("639709281763605975586752107");
+		BigInteger q = new BigInteger("1027348307662006800312732683");
 		BigInteger n = q.multiply(p);
 		BigInteger d = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
-		BigInteger[] keypair = keygen (p, q, BigInteger.valueOf(65537));
-
+		BigInteger[] keypair = keygen (p, q, new BigInteger("17"));
+		System.out.println ("p = 0x" +p.toString(16));
+		System.out.println ("q = 0x" +q.toString(16));
 		System.out.println ("e = 0x" + keypair[0].toString(16));
 		System.out.println ("N = 0x" + keypair[1].toString(16));
+		System.out.println ("N has " + calculateBits(keypair[1]) + " bits");
 		System.out.println ("d = 0x" + keypair[2].toString(16));
 	}
 
@@ -155,12 +158,28 @@ public class RameyThomasRoperSethRSA2
 		System.out.println ("The encryption of (m1=0x" + m1.toString(16) + ") is 0x" + c1.toString(16));
 		BigInteger cleartext1 = decrypt (c1, keypair[2], keypair[1]);
 		System.out.println ("The decryption of (c=0x" + c1.toString(16) + ") is 0x" + cleartext1.toString(16));
+		calculateDecryption(c1, keypair[2], keypair[1]);
 
 		BigInteger m2  = BigInteger.valueOf(5);
 		BigInteger c2 = encrypt (m2, keypair[0], keypair[1]);
 		System.out.println ("The encryption of (m2=0x" + m2.toString(16) + ") is 0x" + c2.toString(16));
 		BigInteger cleartext2 = decrypt (c2, keypair[2], keypair[1]);
 		System.out.println ("The decryption of (c2=0x" + c2.toString(16) + ") is 0x" + cleartext2.toString(16));
+	}
+
+	public double calculateDecryption(BigInteger cipherText, BigInteger inD, BigInteger inN)
+	{
+		long startTime = System.nanoTime();
+		for(int i = 0; i < 1000; i++)
+		{
+			decrypt(cipherText, inD, inN);
+		}
+		long endTime = System.nanoTime();
+		double calcTime = (endTime - startTime) / 1000000000.0;
+		double result = ((double)(1000.0 * calculateBits(inN)) / calcTime) / 1000.0;
+		System.out.print("KiloBits decrypted per second: ");
+		System.out.printf("%.4f\n", result);
+		return result;
 	}
 
 	public int calculateBits(BigInteger n)
